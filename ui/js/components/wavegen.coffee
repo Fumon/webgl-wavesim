@@ -1,5 +1,33 @@
 
 define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], (react, $, fsh, vsh) ->
+  # Constants
+  w:
+    numWaves:
+      v: 1
+      f: 'uniform1i'
+    amplitude:
+      v: new Float32Array([
+        0.8
+      ])
+      f: 'uniform1fv'
+    wavelength:
+      v: new Float32Array([
+        0.1
+      ])
+      f: 'uniform1fv'
+    speed:
+      v: new Float32Array([
+        0.5
+      ])
+      f: 'uniform1fv'
+    direction:
+      v: new Float32Array([
+        0.0, 1.0
+      ])
+      f: 'uniform2fv'
+
+
+
   react.createFactory react.createClass
     displayName: 'gl'
     getgl: () ->
@@ -69,6 +97,16 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
       @posattr = @gl.getAttribLocation @glprog, "aVertPos"
       @gl.enableVertexAttribArray @posattr
 
+      # Grab Uniforms
+      @uniforms =
+        time: @gl.getUniformLocation @glprog, 'time'
+        numWaves: @gl.getUniformLocation @glprog, 'numWaves'
+        amplitude: @gl.getUniformLocation @glprog, 'amplitude'
+        wavelength: @gl.getUniformLocation @glprog, 'wavelength'
+        speed: @gl.getUniformLocation @glprog, 'speed'
+        direction: @gl.getUniformLocation @glprog, 'direction'
+
+
       # Create buffer
       @buf = @createBuffer()
       @draw()
@@ -78,6 +116,13 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
 
       # Use program
       @gl.useProgram @glprog
+
+      # Seed constants
+      for key, data of @w
+        @gl[data.f](@uniforms[key], data.v)
+
+      # Set time
+      @gl.uniform1f(@uniforms.time, 0.3)
 
       # Bind Buffer and point vertex shader at the points
       @gl.bindBuffer @gl.ARRAY_BUFFER, @buf
