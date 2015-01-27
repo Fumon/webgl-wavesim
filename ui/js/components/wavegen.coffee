@@ -1,34 +1,34 @@
 
 define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], (react, $, fsh, vsh) ->
-  # Constants
-  w:
-    numWaves:
-      v: 1
-      f: 'uniform1i'
-    amplitude:
-      v: new Float32Array([
-        0.8
-      ])
-      f: 'uniform1fv'
-    wavelength:
-      v: new Float32Array([
-        0.1
-      ])
-      f: 'uniform1fv'
-    speed:
-      v: new Float32Array([
-        0.5
-      ])
-      f: 'uniform1fv'
-    direction:
-      v: new Float32Array([
-        0.0, 1.0
-      ])
-      f: 'uniform2fv'
 
 
 
   react.createFactory react.createClass
+    # Constants
+    w:
+      numWaves:
+        v: 1
+        f: 'uniform1i'
+      amplitude:
+        v: new Float32Array([
+          0.8
+        ])
+        f: 'uniform1fv'
+      wavelength:
+        v: new Float32Array([
+          0.1
+        ])
+        f: 'uniform1fv'
+      speed:
+        v: new Float32Array([
+          0.5
+        ])
+        f: 'uniform1fv'
+      direction:
+        v: new Float32Array([
+          Math.sin(Math.PI/4), Math.cos(Math.PI/4)
+        ])
+        f: 'uniform2fv'
     displayName: 'gl'
     getgl: () ->
       # Grab the gl context
@@ -99,12 +99,16 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
 
       # Grab Uniforms
       @uniforms =
-        time: @gl.getUniformLocation @glprog, 'time'
-        numWaves: @gl.getUniformLocation @glprog, 'numWaves'
-        amplitude: @gl.getUniformLocation @glprog, 'amplitude'
-        wavelength: @gl.getUniformLocation @glprog, 'wavelength'
-        speed: @gl.getUniformLocation @glprog, 'speed'
-        direction: @gl.getUniformLocation @glprog, 'direction'
+        time: null
+        numWaves: null
+        amplitude: null
+        wavelength: null
+        speed: null
+        direction: null
+
+      for key of @uniforms
+        @uniforms[key] = @gl.getUniformLocation @glprog, key
+      console.log @uniforms
 
 
       # Create buffer
@@ -120,6 +124,10 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
       # Seed constants
       for key, data of @w
         @gl[data.f](@uniforms[key], data.v)
+
+      #@gl[@w.numWaves.f](@uniforms.numWaves, @w.numWaves.v)
+      #@gl[@w.amplitude.f](@uniforms.amplitude, @w.amplitude.v)
+
 
       # Set time
       @gl.uniform1f(@uniforms.time, 0.3)
