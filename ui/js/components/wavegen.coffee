@@ -1,33 +1,24 @@
 
 define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], (react, $, fsh, vsh) ->
 
-
+  rnd = () ->
+    Math.random() * 0.3 + 0.5
+  rndPI = () ->
+    Math.random() * (4*Math.PI)
 
   react.createFactory react.createClass
     # Constants
     w:
       numWaves:
-        v: 1
+        v: 5
         f: 'uniform1i'
       amplitude:
-        v: new Float32Array([
-          0.8
-        ])
         f: 'uniform1fv'
       wavelength:
-        v: new Float32Array([
-          0.1
-        ])
         f: 'uniform1fv'
       speed:
-        v: new Float32Array([
-          0.5
-        ])
         f: 'uniform1fv'
       direction:
-        v: new Float32Array([
-          Math.sin(Math.PI/4), Math.cos(Math.PI/4)
-        ])
         f: 'uniform2fv'
     displayName: 'gl'
     getgl: () ->
@@ -110,9 +101,34 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
         @uniforms[key] = @gl.getUniformLocation @glprog, key
       console.log @uniforms
 
+      # Randomize constants
+      num = @w.numWaves.v
+      for key of @w
+        if key != 'numWaves'
+          arr = null
+          if key == 'direction'
+            arr = new Float32Array(Array(num*2))
+          else
+            arr = new Float32Array(Array(num))
+          i = 0
+          while i < num
+            if key == 'direction'
+              arr[i*2]=Math.cos rndPI()
+              arr[i*2+1] = Math.sin rndPI()
+            else if key == 'wavelength'
+              arr[i]=1.0/rnd()
+            else
+              arr[i]=rnd()
+            ++i
+          @w[key].v = arr
+      console.log @w
+
 
       # Create buffer
       @buf = @createBuffer()
+
+      @time = 0.0
+
       @draw()
     draw: () ->
       # Clear
@@ -130,12 +146,15 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
 
 
       # Set time
-      @gl.uniform1f(@uniforms.time, 0.3)
+      @gl.uniform1f(@uniforms.time, @time)
 
       # Bind Buffer and point vertex shader at the points
       @gl.bindBuffer @gl.ARRAY_BUFFER, @buf
       @gl.vertexAttribPointer @posattr, 2, @gl.FLOAT, false, 0, 0
       @gl.drawArrays @gl.TRIANGLE_STRIP, 0, 4
+
+      @time += 0.01
+      window.requestAnimationFrame @draw
     render: () ->
       react.createElement 'canvas', className: 'glRender'
 

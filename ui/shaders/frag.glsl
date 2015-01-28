@@ -1,4 +1,7 @@
-precision mediump float;
+precision highp float;
+
+const vec4 OCEAN = vec4(0, 0.435, 0.475, 1.0);
+const vec4 OCEANSPRAY = vec4(0.831, 0.996, 0.988, 1.0);
 
 const float pi = 3.14159;
 uniform float time;
@@ -9,15 +12,17 @@ uniform float speed[8];
 uniform vec2 direction[8];
 
 void main() {
-    mediump float xpos = gl_PointCoord.x;
-    mediump float height = 0.0;
+    float xpos = gl_PointCoord.x;
+    float ypos = gl_PointCoord.y;
+    float height = 0.0;
     for (int i = 0; i < 8; ++i) {
       if(i < numWaves) {
         float frequency = 2.0*pi/wavelength[i];
         float phase = speed[i] * frequency;
-        float theta = dot(direction[i], vec2(xpos, 0));
+        float theta = dot(direction[i], vec2(xpos, ypos));
         height += amplitude[i] * sin(theta * frequency + time * phase);
       }
     }
-    gl_FragColor = vec4(0,0,height,1);  // Blue
+    height = clamp(height, 0.0, 1.0);
+    gl_FragColor = mix(OCEAN, OCEANSPRAY, height);  // Blue
 }
