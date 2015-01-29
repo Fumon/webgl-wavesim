@@ -81,7 +81,7 @@ define ['react', 'jquery', 'text!shaders/frag.glsl', 'text!shaders/vert.glsl'], 
       @gl.linkProgram @glprog
 
       if !@gl.getProgramParameter @glprog, @gl.LINK_STATUS
-       console.error "Unable to link the program"
+       console.error "Unable to link the program #{@gl.getProgramInfoLog @glprog}"
        return
 
       # Grab vert shader attrs

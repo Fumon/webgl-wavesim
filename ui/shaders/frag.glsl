@@ -11,15 +11,15 @@ uniform float wavelength[8];
 uniform float speed[8];
 uniform vec2 direction[8];
 
+varying vec2 pos;
+
 void main() {
-    float xpos = gl_PointCoord.x;
-    float ypos = gl_PointCoord.y;
     float height = 0.0;
     for (int i = 0; i < 8; ++i) {
       if(i < numWaves) {
         float frequency = 2.0*pi/wavelength[i];
         float phase = speed[i] * frequency;
-        float theta = dot(direction[i], vec2(xpos, ypos));
+        float theta = dot(direction[i], pos);
         height += amplitude[i] * sin(theta * frequency + time * phase);
       }
     }
