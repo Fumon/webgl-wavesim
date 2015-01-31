@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
 )
 
 var servport = ":6863"
