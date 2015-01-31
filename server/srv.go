@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/gorilla/mux"
 )
@@ -22,7 +24,15 @@ func main() {
 
 	// Restful handler
 	r := mux.NewRouter()
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./ui")))
+
+	_, file := path.Split(os.Args[0])
+	if file == "server" {
+		r.PathPrefix("/").Handler(http.FileServer(http.Dir("/ui")))
+	} else {
+		log.Println("[i] Dev mode")
+		r.PathPrefix("/").Handler(http.FileServer(http.Dir("./ui")))
+	}
+
 	http.Handle("/", r)
 
 	log.Println("[i] Serving on ", servport, "\n\tWaiting...")
