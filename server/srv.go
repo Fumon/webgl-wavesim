@@ -22,7 +22,7 @@ func main() {
 
 	// Restful handler
 	r := mux.NewRouter()
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("../ui")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./ui")))
 	http.Handle("/", r)
 
 	log.Println("[i] Serving on ", servport, "\n\tWaiting...")
